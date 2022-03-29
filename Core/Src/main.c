@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "utility.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +55,11 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void red_blinky(void);
+void blue_blinky(void);
+
+
 
 /* USER CODE END 0 */
 
@@ -93,9 +100,8 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
-
-  LL_GPIO_SetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
-  LL_GPIO_SetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
+  utility_init();
+  LL_SYSTICK_EnableIT();		// enable systick interrupt
 
 
   /* USER CODE END 2 */
@@ -104,6 +110,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  uint32_t volatile run = RESET;
+
+	  if(run)
+	  {
+		  red_blinky();
+	  }
+	  else
+	  {
+		  blue_blinky();
+	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -153,6 +170,29 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void red_blinky(void)
+{
+	while(1)
+	{
+		LL_GPIO_SetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
+		delayTicksMs(500U);
+		LL_GPIO_ResetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
+		delayTicksMs(250U);
+	}
+}
+
+void blue_blinky(void)
+{
+	while(1)
+	{
+		LL_GPIO_SetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
+		delayTicksMs(1000U);
+		LL_GPIO_ResetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
+		delayTicksMs(1000U);
+	}
+}
+
 
 /* USER CODE END 4 */
 
