@@ -101,6 +101,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   utility_init();
+
+  SysTick->LOAD = (21000000U / 4U) - 1U;
+
   LL_SYSTICK_EnableIT();		// enable systick interrupt
 
 
@@ -187,9 +190,9 @@ void blue_blinky(void)
 	while(1)
 	{
 		LL_GPIO_SetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
-		delayTicksMs(1000U);
+		delayTicksMs(40U);
 		LL_GPIO_ResetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
-		delayTicksMs(1000U);
+		delayTicksMs(40U);
 	}
 }
 

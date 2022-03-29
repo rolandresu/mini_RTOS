@@ -187,8 +187,7 @@ void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
-	//ticks_increment();
-	LL_GPIO_SetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
+	ticks_increment();
 
   /* USER CODE END SysTick_IRQn 0 */
 
