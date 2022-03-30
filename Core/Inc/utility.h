@@ -93,10 +93,10 @@ uint8_t calculate_crc8(uint8_t const* ptrBuffer, uint32_t bufferSize);
 
 /**
   * @brief  delay using systick timer
-  * @param  delayMs: delay in milliseconds
+  * @param  ticks: number of ticks (1 tick = 250ms)
   * @retval none
 */
-void delayTicksMs(uint32_t delayMs);
+void delayTicks(uint32_t ticks);
 
 
 /**

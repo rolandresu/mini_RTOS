@@ -17,7 +17,9 @@
 #define MS_COUNT				(US_COUNT*1000u)
 
 
+/* Private Function Prototypes */
 static void strReverse(char* str, uint16_t len);
+static uint32_t tick_ctrl(void);
 
 
 /* Private Variable */
@@ -167,14 +169,11 @@ uint8_t calculate_crc8(uint8_t const* ptrBuffer, uint32_t bufferSize)
 
 
 /* delay with Ticks */
-void delayTicksMs(uint32_t delayMs)
+void delayTicks(uint32_t ticks)
 {
-	uint32_t end = (numTicks + delayMs);
+	uint32_t start = tick_ctrl();
 
-	while(numTicks < end)
-	{
-
-	}
+	while((tick_ctrl() - start) < ticks){}
 }	// end of delayTicksMs
 
 
@@ -184,6 +183,18 @@ void ticks_increment(void)
 	numTicks++;
 }	// end of ticks_increment
 
+
+/* tick control */
+static uint32_t tick_ctrl(void)
+{
+	uint32_t tickCtrl;
+
+	__disable_irq();
+	tickCtrl = numTicks;
+	__enable_irq();
+
+	return tickCtrl;
+}	// end of tick_ctrl
 
 /* reverse char array */
 static void strReverse(char* str, uint16_t len)

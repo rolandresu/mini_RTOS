@@ -34,6 +34,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+#define TICKS_PER_SEC		1000U
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -102,10 +105,10 @@ int main(void)
 
   utility_init();
 
-  SysTick->LOAD = (21000000U / 4U) - 1U;
+  //SystemCoreClockUpdate();
+  //SysTick_Config((SystemCoreClock / TICKS_PER_SEC));
 
-  LL_SYSTICK_EnableIT();		// enable systick interrupt
-
+  LL_SYSTICK_EnableIT();
 
   /* USER CODE END 2 */
 
@@ -113,7 +116,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint32_t volatile run = RESET;
+  	  uint32_t volatile run = RESET;
 
 	  if(run)
 	  {
@@ -149,7 +152,6 @@ void SystemClock_Config(void)
   {
 
   }
-  LL_RCC_HSE_EnableCSS();
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 168, LL_RCC_PLLP_DIV_2);
   LL_RCC_PLL_Enable();
 
@@ -168,7 +170,7 @@ void SystemClock_Config(void)
   {
 
   }
-  LL_Init1msTick(21000000);
+  LL_Init1msTick(168000000);
   LL_SetSystemCoreClock(168000000);
 }
 
@@ -179,9 +181,9 @@ void red_blinky(void)
 	while(1)
 	{
 		LL_GPIO_SetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
-		delayTicksMs(500U);
+		delayTicks(1000U);
 		LL_GPIO_ResetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
-		delayTicksMs(250U);
+		delayTicks(500U);
 	}
 }
 
@@ -190,9 +192,9 @@ void blue_blinky(void)
 	while(1)
 	{
 		LL_GPIO_SetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
-		delayTicksMs(40U);
+		delayTicks(2000U);
 		LL_GPIO_ResetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
-		delayTicksMs(40U);
+		delayTicks(1000U);
 	}
 }
 
