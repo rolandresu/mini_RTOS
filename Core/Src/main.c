@@ -63,6 +63,10 @@ void red_blinky(void);
 void blue_blinky(void);
 
 
+uint32_t stack_blinkyRed[40] = {RESET};
+uint32_t *sp_LEDred = &stack_blinkyRed[40];
+uint32_t stack_blinkyBlue[40] = {RESET};
+uint32_t *sp_LEDblue = &stack_blinkyBlue[40];
 
 /* USER CODE END 0 */
 
@@ -109,6 +113,8 @@ int main(void)
   //SysTick_Config((SystemCoreClock / TICKS_PER_SEC));
 
   LL_SYSTICK_EnableIT();
+
+
 
   /* USER CODE END 2 */
 
