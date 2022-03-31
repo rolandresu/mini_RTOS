@@ -108,13 +108,46 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   utility_init();
-
-  //SystemCoreClockUpdate();
-  //SysTick_Config((SystemCoreClock / TICKS_PER_SEC));
-
   LL_SYSTICK_EnableIT();
 
+  /* stack init of red blinky */
+  *(--sp_LEDred) = (1U << 24U);				// xPSR core register
+  *(--sp_LEDred) = (uint32_t)&red_blinky;	// PC core register
+  *(--sp_LEDred) = 0x0000000EU; 			// LR core register
+  *(--sp_LEDred) = 0x0000000CU;				// R12 core register
+  *(--sp_LEDred) = 0x00000003U;				// R3 core register
+  *(--sp_LEDred) = 0x00000002U;				// R2 core register
+  *(--sp_LEDred) = 0x00000001U;				// R1 core register
+  *(--sp_LEDred) = 0x00000000U;				// R0 core register
+  /* R4 - R11 Stack core register stack frame */
+  *(--sp_LEDred) = 0x0000000BU;				// R11 core register
+  *(--sp_LEDred) = 0x0000000AU;				// R10 core register
+  *(--sp_LEDred) = 0x00000009U;				// R9 core register
+  *(--sp_LEDred) = 0x00000008U;				// R8 core register
+  *(--sp_LEDred) = 0x00000007U;				// R7 core register
+  *(--sp_LEDred) = 0x00000006U;				// R6 core register
+  *(--sp_LEDred) = 0x00000005U;				// R5 core register
+  *(--sp_LEDred) = 0x00000004U;				// R4 core register
 
+
+  /* Stack init of blue blinky */
+  *(--sp_LEDblue) = (1U << 24U);				// xPSR core register
+  *(--sp_LEDblue) = (uint32_t)&blue_blinky;		// PC core register
+  *(--sp_LEDblue) = 0x0000000EU; 				// LR core register
+  *(--sp_LEDblue) = 0x0000000CU;				// R12 core register
+  *(--sp_LEDblue) = 0x00000003U;				// R3 core register
+  *(--sp_LEDblue) = 0x00000002U;				// R2 core register
+  *(--sp_LEDblue) = 0x00000001U;				// R1 core register
+  *(--sp_LEDblue) = 0x00000000U;				// R0 core register
+  /* R4 - R11 Stack core register stack frame */
+  *(--sp_LEDblue) = 0x0000000BU;				// R11 core register
+  *(--sp_LEDblue) = 0x0000000AU;				// R10 core register
+  *(--sp_LEDblue) = 0x00000009U;				// R9 core register
+  *(--sp_LEDblue) = 0x00000008U;				// R8 core register
+  *(--sp_LEDblue) = 0x00000007U;				// R7 core register
+  *(--sp_LEDblue) = 0x00000006U;				// R6 core register
+  *(--sp_LEDblue) = 0x00000005U;				// R5 core register
+  *(--sp_LEDblue) = 0x00000004U;				// R4 core register
 
   /* USER CODE END 2 */
 
@@ -122,17 +155,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	  uint32_t volatile run = RESET;
-
-	  if(run)
-	  {
-		  red_blinky();
-	  }
-	  else
-	  {
-		  blue_blinky();
-	  }
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
