@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "utility.h"
+#include "qpc.h"
 
 /* USER CODE END Includes */
 
@@ -34,8 +35,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
-#define TICKS_PER_SEC		1000U
 
 /* USER CODE END PD */
 
@@ -59,14 +58,14 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void red_blinky(void);
-void blue_blinky(void);
+void red_blinky(QXThread * const me);
+void blue_blinky(QXThread * const me);
 
 
-uint32_t stack_blinkyRed[40] = {RESET};
-uint32_t *sp_LEDred = &stack_blinkyRed[40];
-uint32_t stack_blinkyBlue[40] = {RESET};
-uint32_t *sp_LEDblue = &stack_blinkyBlue[40];
+uint32_t stackBlinkyRed[40] = {RESET};
+QXThread LEDredThreadCtrl;
+uint32_t stackBlinkyBlue[40] = {RESET};
+QXThread LEDblueThreadCtrl;
 
 /* USER CODE END 0 */
 
@@ -89,8 +88,8 @@ int main(void)
   /* System interrupt init*/
   NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_2);
 
-  /* SysTick_IRQn interrupt configuration */
-  NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
+  /* PendSV_IRQn interrupt configuration */
+  NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),3, 3));
 
   /* USER CODE BEGIN Init */
 
@@ -108,46 +107,27 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   utility_init();
+
+  QF_init();
+
+  QXThread_ctor(&LEDredThreadCtrl, &red_blinky, RESET);
+  QXTHREAD_START(&LEDredThreadCtrl,
+		  	  	 5U,
+		  	  	 (void *)0, 0,
+				 stackBlinkyRed,
+				 (sizeof(stackBlinkyRed) / sizeof(stackBlinkyRed[0])),
+				 (void*)0);
+
+  QXThread_ctor(&LEDblueThreadCtrl, &blue_blinky, RESET);
+  QXTHREAD_START(&LEDblueThreadCtrl,
+		  	  	 2U,
+		  	  	 (void *)0, 0,
+				 stackBlinkyBlue,
+				 (sizeof(stackBlinkyBlue) / sizeof(stackBlinkyBlue[0])),
+				 (void*)0);
+
   LL_SYSTICK_EnableIT();
-
-  /* stack init of red blinky */
-  *(--sp_LEDred) = (1U << 24U);				// xPSR core register
-  *(--sp_LEDred) = (uint32_t)&red_blinky;	// PC core register
-  *(--sp_LEDred) = 0x0000000EU; 			// LR core register
-  *(--sp_LEDred) = 0x0000000CU;				// R12 core register
-  *(--sp_LEDred) = 0x00000003U;				// R3 core register
-  *(--sp_LEDred) = 0x00000002U;				// R2 core register
-  *(--sp_LEDred) = 0x00000001U;				// R1 core register
-  *(--sp_LEDred) = 0x00000000U;				// R0 core register
-  /* R4 - R11 Stack core register stack frame */
-  *(--sp_LEDred) = 0x0000000BU;				// R11 core register
-  *(--sp_LEDred) = 0x0000000AU;				// R10 core register
-  *(--sp_LEDred) = 0x00000009U;				// R9 core register
-  *(--sp_LEDred) = 0x00000008U;				// R8 core register
-  *(--sp_LEDred) = 0x00000007U;				// R7 core register
-  *(--sp_LEDred) = 0x00000006U;				// R6 core register
-  *(--sp_LEDred) = 0x00000005U;				// R5 core register
-  *(--sp_LEDred) = 0x00000004U;				// R4 core register
-
-
-  /* Stack init of blue blinky */
-  *(--sp_LEDblue) = (1U << 24U);				// xPSR core register
-  *(--sp_LEDblue) = (uint32_t)&blue_blinky;		// PC core register
-  *(--sp_LEDblue) = 0x0000000EU; 				// LR core register
-  *(--sp_LEDblue) = 0x0000000CU;				// R12 core register
-  *(--sp_LEDblue) = 0x00000003U;				// R3 core register
-  *(--sp_LEDblue) = 0x00000002U;				// R2 core register
-  *(--sp_LEDblue) = 0x00000001U;				// R1 core register
-  *(--sp_LEDblue) = 0x00000000U;				// R0 core register
-  /* R4 - R11 Stack core register stack frame */
-  *(--sp_LEDblue) = 0x0000000BU;				// R11 core register
-  *(--sp_LEDblue) = 0x0000000AU;				// R10 core register
-  *(--sp_LEDblue) = 0x00000009U;				// R9 core register
-  *(--sp_LEDblue) = 0x00000008U;				// R8 core register
-  *(--sp_LEDblue) = 0x00000007U;				// R7 core register
-  *(--sp_LEDblue) = 0x00000006U;				// R6 core register
-  *(--sp_LEDblue) = 0x00000005U;				// R5 core register
-  *(--sp_LEDblue) = 0x00000004U;				// R4 core register
+  QF_run();
 
   /* USER CODE END 2 */
 
@@ -204,26 +184,35 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-void red_blinky(void)
+void red_blinky(QXThread * const me)
 {
 	while(1)
 	{
-		LL_GPIO_SetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
-		delayTicks(1000U);
-		LL_GPIO_ResetOutputPin(LED_Red_GPIO_Port, LED_Red_Pin);
-		delayTicks(500U);
+		LL_GPIO_TogglePin(LED_Red_GPIO_Port, LED_Red_Pin);
+		QXThread_delay(500U);
 	}
 }
 
-void blue_blinky(void)
+
+void blue_blinky(QXThread * const me)
 {
 	while(1)
 	{
-		LL_GPIO_SetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
-		delayTicks(2000U);
-		LL_GPIO_ResetOutputPin(LED_Blue_GPIO_Port, LED_Blue_Pin);
-		delayTicks(1000U);
+		LL_GPIO_TogglePin(LED_Blue_GPIO_Port, LED_Blue_Pin);
+		QXThread_delay(1000U);
 	}
+}
+
+
+void QF_onStartup(void)
+{
+
+}
+
+
+void QXK_onIdle(void)
+{
+
 }
 
 
